@@ -6,16 +6,6 @@ const Cookie = '_yapi_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjMxLCJ
 
 let exportApiArr = []
 
-const headerCode = `import { AxiosRequestConfig } from 'axios'\nimport instance from './instance'\n`
-
-fs.truncate(_dirname + '/api.ts', 0, () => {
-  console.log('清空文件成功')
-})
-
-fs.writeFile(_dirname + '/api.ts', headerCode, () => {
-  console.log('写入文件成功')
-})
-
 listMenu()
 
 function listMenu () {
@@ -23,20 +13,26 @@ function listMenu () {
     headers: { Cookie }
   }).then(res => {
     if (res.data.errcode === 0) {
-      let code = ''
-      res.data.data.map(item => {
-        let desc = item.name
-        console.log(desc)
-        item.list.map(api => {
-          let apiName = changeCase(api.path) + '_' + api.method.toLowerCase()
-          exportApiArr.push(apiName)
-          code += `\n/** ${desc} ${api.title.trim()} */\nfunction ${apiName} (opts?: AxiosRequestConfig) {\n  return instance({\n    method: '${api.method.toLowerCase()}',\n    url: '/api/v4/manager${api.path}',\n    ...opts\n  })\n}\n`
+      async function request () {
+        await appendImportCode()
+        let code = ''
+        res.data.data.map(item => {
+          let desc = item.name
+          console.log(desc)
+          item.list.map(api => {
+            let apiName = changeCase(api.path) + '_' + api.method.toLowerCase()
+            exportApiArr.push(apiName)
+            code += `\n/** ${desc} ${api.title.trim()} */\nfunction ${apiName} (opts?: AxiosRequestConfig) {\n  return instance({\n    method: '${api.method.toLowerCase()}',\n    url: '/api/v4/manager${api.path}',\n    ...opts\n  })\n}\n`
+          })
         })
-      })
-      fs.appendFile(_dirname + '/api.ts', code, () => {
-        console.log('WRITE FILE SUCCESS')
-        appendExportCode()
-      })
+        await fs.appendFile(_dirname + '/api.ts', code, () => {
+          console.log('WRITE FILE SUCCESS')
+          appendExportCode()
+        })
+      }
+      request()
+    } else {
+      console.log(res.data)
     }
   })
 }
@@ -49,6 +45,16 @@ function changeCase (str) {
   return res
 }
 
+function appendImportCode () {
+  const headerCode = `import { AxiosRequestConfig } from 'axios'\nimport instance from './instance'\n`
+
+  fs.truncateSync(_dirname + '/api.ts', 0)
+  console.log('清除文件成功')
+
+  fs.writeFileSync(_dirname + '/api.ts', headerCode)
+  console.log('写入文件成功')
+}
+
 function appendExportCode () {
   let api = ''
   let length = exportApiArr.length
@@ -59,7 +65,7 @@ function appendExportCode () {
       api += name
     }
   })
-  fs.appendFile(_dirname + '/api.ts', `\nexport {\n  ${api}\n}`, () => {
+  fs.appendFile(_dirname + '/api.ts', `\nexport {\n  ${api}\n}\n`, () => {
     console.log('THE END!')
   })
 }
