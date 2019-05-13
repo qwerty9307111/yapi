@@ -20,8 +20,8 @@ function listMenu () {
   })
 }
 
-async function appendApiCode (data) {
-  await appendImportCode()
+function appendApiCode (data) {
+  appendImportCode()
   let code = ''
   data.map(item => {
     let desc = item.name
@@ -32,7 +32,7 @@ async function appendApiCode (data) {
       code += `\n/** ${desc} ${api.title.trim()} */\nfunction ${apiName} (opts?: AxiosRequestConfig) {\n  return instance({\n    method: '${api.method.toLowerCase()}',\n    url: '/api/v4/manager${api.path}',\n    ...opts\n  })\n}\n`
     })
   })
-  await fs.appendFile(config.dirname + '/' + config.fileName, code, () => {
+  fs.appendFile(config.dirname + '/' + config.fileName, code, () => {
     console.log('WRITE FILE SUCCESS')
     appendExportCode()
   })
