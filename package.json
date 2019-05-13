@@ -1,0 +1,23 @@
+{
+  "name": "yapi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "api": "node ./src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qwerty9307111/yapi.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/qwerty9307111/yapi/issues"
+  },
+  "homepage": "https://github.com/qwerty9307111/yapi#readme",
+  "dependencies": {
+    "axios": "^0.18.0"
+  }
+}
